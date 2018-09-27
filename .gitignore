@@ -1,0 +1,17 @@
+build
+out
+
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+.clang_complete
+*.sublime-*
+*.code-workspace
+.vscode/*
+
+__pycache__
+*.pyc

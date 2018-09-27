@@ -1,0 +1,6 @@
+[submodule "third_party/jasl/jasl.github"]
+	path = third_party/jasl/jasl.github
+	url = https://github.com/matepek/jasl.git
+[submodule "third_party/Catch2/Catch2.github"]
+	path = third_party/Catch2/Catch2.github
+	url = https://github.com/catchorg/Catch2.git
