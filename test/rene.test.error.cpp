@@ -4,47 +4,89 @@
 
 namespace rene {
 namespace test {
-enum class FooErrorCode { Error1, Error2 };
+enum class ErrCode { Error1, Error2 };
+
+static_assert(std::is_nothrow_constructible<error,
+                                            error::MessageT&&,
+                                            error::FileT&&,
+                                            uint32_t>::value);
+static_assert(!std::is_nothrow_copy_constructible<error>::value);
+static_assert(std::is_nothrow_move_constructible<error>::value);
+static_assert(!std::is_nothrow_copy_assignable<error>::value);
+static_assert(std::is_nothrow_move_assignable<error>::value);
+static_assert(std::is_nothrow_destructible<error>::value);
+
+static_assert(std::is_nothrow_constructible<spec_error<ErrCode>,
+                                            ErrCode,
+                                            spec_error<ErrCode>::FileT&&,
+                                            uint32_t>::value);
+static_assert(!std::is_nothrow_copy_constructible<spec_error<ErrCode>>::value);
+static_assert(std::is_nothrow_move_constructible<spec_error<ErrCode>>::value);
+static_assert(!std::is_nothrow_copy_assignable<spec_error<ErrCode>>::value);
+static_assert(std::is_nothrow_move_assignable<spec_error<ErrCode>>::value);
+static_assert(std::is_nothrow_destructible<spec_error<ErrCode>>::value);
 
 TEST_CASE("error") {
   error e("Coyote has catched the Roadrunner!", __FILE__, __LINE__);
 
-  auto ee = ERROR("Using with macro");
+  auto ee = error("Using with macro", __FILE__, __LINE__);
 
   auto eee(ee);
-
-  error eeee(std::move(ee), __FILE__, __LINE__);
 }
 
 TEST_CASE("spec_error<...>") {
-  spec_error<FooErrorCode> e(FooErrorCode::Error1, __FILE__, __LINE__);
+  spec_error<ErrCode> e(ErrCode::Error1, __FILE__, __LINE__);
 
-  REQUIRE(e.is(FooErrorCode::Error1));
-  REQUIRE(e.get() == FooErrorCode::Error1);
+  REQUIRE(e.is(ErrCode::Error1));
+  REQUIRE(e.get() == ErrCode::Error1);
 
-  REQUIRE(!e.is(FooErrorCode::Error2));
-  REQUIRE(e.get() != FooErrorCode::Error2);
+  REQUIRE(!e.is(ErrCode::Error2));
+  REQUIRE(e.get() != ErrCode::Error2);
 
-  auto ee = SPEC_ERROR(FooErrorCode::Error1);
+  auto ee = spec_error<ErrCode>(ErrCode::Error1, __FILE__, __LINE__);
 
-  REQUIRE(ee.is(FooErrorCode::Error1));
-  REQUIRE(ee.get() == FooErrorCode::Error1);
+  REQUIRE(ee.is(ErrCode::Error1));
+  REQUIRE(ee.get() == ErrCode::Error1);
 
-  REQUIRE(!ee.is(FooErrorCode::Error2));
-  REQUIRE(ee.get() != FooErrorCode::Error2);
+  REQUIRE(!ee.is(ErrCode::Error2));
+  REQUIRE(ee.get() != ErrCode::Error2);
 
-  using FooError = spec_error<FooErrorCode>;
+  using FooError = spec_error<ErrCode>;
 
-  FooError eee = SPEC_ERROR(FooErrorCode::Error1);
+  FooError eee = spec_error<ErrCode>(ErrCode::Error1, __FILE__, __LINE__);
 
-  REQUIRE(eee.is(FooErrorCode::Error1));
-  REQUIRE(eee.get() == FooErrorCode::Error1);
+  REQUIRE(eee.is(ErrCode::Error1));
+  REQUIRE(eee.get() == ErrCode::Error1);
 
-  REQUIRE(!eee.is(FooErrorCode::Error2));
-  REQUIRE(eee.get() != FooErrorCode::Error2);
+  REQUIRE(!eee.is(ErrCode::Error2));
+  REQUIRE(eee.get() != ErrCode::Error2);
 
   auto eeee(eee);
   FooError eeeee(std::move(eee));
+}
+
+TEST_CASE("RENE_ERROR") {
+  auto ee = RENE_ERROR("Using with macro");
+}
+
+TEST_CASE("RENE_SPEC_ERROR") {
+  auto ee = RENE_SPEC_ERROR(ErrCode::Error1);
+
+  REQUIRE(ee.is(ErrCode::Error1));
+  REQUIRE(ee.get() == ErrCode::Error1);
+
+  REQUIRE(!ee.is(ErrCode::Error2));
+  REQUIRE(ee.get() != ErrCode::Error2);
+
+  using FooError = spec_error<ErrCode>;
+
+  FooError eee = RENE_SPEC_ERROR(ErrCode::Error1);
+
+  REQUIRE(eee.is(ErrCode::Error1));
+  REQUIRE(eee.get() == ErrCode::Error1);
+
+  REQUIRE(!eee.is(ErrCode::Error2));
+  REQUIRE(eee.get() != ErrCode::Error2);
 }
 
 }  // namespace test

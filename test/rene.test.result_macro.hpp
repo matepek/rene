@@ -1,12 +1,12 @@
-#include "catch2/catch.hpp"
 
 #include <iostream>
 
-#include "rene/result.hpp"
+#include "rene/general_result_macro.hpp"
 
 namespace rene {
 namespace test {
 namespace {
+
 struct What {
   enum Type {
     Constructed,
@@ -90,9 +90,7 @@ spec_result<Err, Args...> returnSpecResultOrError(bool returnWithError) {
   return res;
 }
 
-}  // namespace
-
-TEST_CASE("result<What>") {
+TEST_CASE(RENE_TEST_PREFIX "result<What>") {
   {
     auto func = []() -> result<What> { return What(); };
     {
@@ -125,7 +123,7 @@ TEST_CASE("result<What>") {
   }
 }
 
-TEST_CASE("spec_result<Err, What>") {
+TEST_CASE(RENE_TEST_PREFIX "spec_result<Err, What>") {
   {
     auto func = []() -> spec_result<Err, What> { return What(); };
     {
@@ -158,24 +156,24 @@ TEST_CASE("spec_result<Err, What>") {
   }
 }
 
-TEST_CASE("Macro RETURN") {
+TEST_CASE(RENE_TEST_PREFIX "Macro RENE_RETURN") {
   SECTION("result<>") {
     auto func = [&](bool returnWithError) -> result<> {
-      RETURN(returnResultOrError(returnWithError));
+      RENE_RETURN(returnResultOrError(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") { CHECK(func(false).is_error() == false); }
   }
   SECTION("spec_result<Err>") {
     auto func = [&](bool returnWithError) -> spec_result<Err> {
-      RETURN(returnSpecResultOrError(returnWithError));
+      RENE_RETURN(returnSpecResultOrError(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") { CHECK(func(false).is_error() == false); }
   }
   SECTION("result<What>") {
     auto func = [&](bool returnWithError) -> result<What> {
-      RETURN(returnResultOrError<What>(returnWithError));
+      RENE_RETURN(returnResultOrError<What>(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") {
@@ -185,10 +183,18 @@ TEST_CASE("Macro RETURN") {
                  Equals({What::Constructed, What::MoveConstructed,
                          What::MoveConstructed}));
     }
+    SECTION("2 frame") {
+      auto func2 = [&]() -> result<What> { RENE_RETURN(func(false)); };
+      auto res2 = func2();
+      REQUIRE_FALSE(res2.is_error());
+      CHECK_THAT(res2.get().action,
+                 Equals({What::Constructed, What::MoveConstructed,
+                         What::MoveConstructed, What::MoveConstructed}));
+    }
   }
   SECTION("spec_result<Err, What>") {
     auto func = [&](bool returnWithError) -> spec_result<Err, What> {
-      RETURN(returnSpecResultOrError<What>(returnWithError));
+      RENE_RETURN(returnSpecResultOrError<What>(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") {
@@ -201,7 +207,7 @@ TEST_CASE("Macro RETURN") {
   }
   SECTION("result<What, What>") {
     auto func = [&](bool returnWithError) -> result<What, What> {
-      RETURN(returnResultOrError<What, What>(returnWithError));
+      RENE_RETURN(returnResultOrError<What, What>(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") {
@@ -217,7 +223,7 @@ TEST_CASE("Macro RETURN") {
   }
   SECTION("spec_result<Err, What, What>") {
     auto func = [&](bool returnWithError) -> spec_result<Err, What, What> {
-      RETURN(returnSpecResultOrError<What, What>(returnWithError));
+      RENE_RETURN(returnSpecResultOrError<What, What>(returnWithError));
     };
     SECTION("returnWithError") { CHECK(func(true).is_error() == true); }
     SECTION("!returnWithError") {
@@ -233,12 +239,12 @@ TEST_CASE("Macro RETURN") {
   }
 }
 
-TEST_CASE("Macro RETURN_IF_ERROR") {
+TEST_CASE(RENE_TEST_PREFIX "Macro RENE_RETURN_IF_ERROR") {
   SECTION("result<>") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> result<> {
       overstepped = false;
-      RETURN_IF_ERROR(returnResultOrError(returnWithError));
+      RENE_RETURN_IF_ERROR(returnResultOrError(returnWithError));
       overstepped = true;
       return {};
     };
@@ -255,7 +261,7 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> spec_result<Err> {
       overstepped = false;
-      RETURN_IF_ERROR(returnSpecResultOrError(returnWithError));
+      RENE_RETURN_IF_ERROR(returnSpecResultOrError(returnWithError));
       overstepped = true;
       return {};
     };
@@ -272,7 +278,7 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> result<> {
       overstepped = false;
-      RETURN_IF_ERROR(returnResultOrError<What>(returnWithError));
+      RENE_RETURN_IF_ERROR(returnResultOrError<What>(returnWithError));
       overstepped = true;
       return {};
     };
@@ -289,7 +295,7 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> spec_result<Err> {
       overstepped = false;
-      RETURN_IF_ERROR(returnSpecResultOrError<What>(returnWithError));
+      RENE_RETURN_IF_ERROR(returnSpecResultOrError<What>(returnWithError));
       overstepped = true;
       return {};
     };
@@ -306,7 +312,7 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> result<> {
       overstepped = false;
-      RETURN_IF_ERROR(returnResultOrError<What, What>(returnWithError));
+      RENE_RETURN_IF_ERROR(returnResultOrError<What, What>(returnWithError));
       overstepped = true;
       return {};
     };
@@ -323,7 +329,8 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> spec_result<Err> {
       overstepped = false;
-      RETURN_IF_ERROR(returnSpecResultOrError<What, What>(returnWithError));
+      RENE_RETURN_IF_ERROR(
+          returnSpecResultOrError<What, What>(returnWithError));
       overstepped = true;
       return {};
     };
@@ -338,12 +345,16 @@ TEST_CASE("Macro RETURN_IF_ERROR") {
   }
 }
 
-TEST_CASE("Macro RETURN_OR_CREATE") {
+TEST_CASE(RENE_TEST_PREFIX "Macro RENE_RETURN_OR_CREATE") {
   SECTION("result<What>") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> result<> {
       overstepped = false;
-      RETURN_OR_CREATE(result, returnResultOrError<What>(returnWithError));
+
+      RENE_RETURN_OR_CREATE(result0, []() -> result<What> { return What{}; }());
+      REQUIRE_THAT(result0.action,
+                   Equals({What::Constructed, What::MoveConstructed}));
+      RENE_RETURN_OR_CREATE(result, returnResultOrError<What>(returnWithError));
       REQUIRE_THAT(result.action,
                    Equals({What::Constructed, What::MoveConstructed}));
       overstepped = true;
@@ -362,7 +373,8 @@ TEST_CASE("Macro RETURN_OR_CREATE") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> spec_result<Err> {
       overstepped = false;
-      RETURN_OR_CREATE(result, returnSpecResultOrError<What>(returnWithError));
+      RENE_RETURN_OR_CREATE(result,
+                            returnSpecResultOrError<What>(returnWithError));
       REQUIRE_THAT(result.action,
                    Equals({What::Constructed, What::MoveConstructed}));
       overstepped = true;
@@ -381,7 +393,7 @@ TEST_CASE("Macro RETURN_OR_CREATE") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> result<What> {
       overstepped = false;
-      RETURN_OR_CREATE(result, returnResultOrError<What>(returnWithError));
+      RENE_RETURN_OR_CREATE(result, returnResultOrError<What>(returnWithError));
       REQUIRE_THAT(result.action,
                    Equals({What::Constructed, What::MoveConstructed}));
       overstepped = true;
@@ -400,7 +412,8 @@ TEST_CASE("Macro RETURN_OR_CREATE") {
     bool overstepped = false;
     auto func = [&](bool returnWithError) -> spec_result<Err, What> {
       overstepped = false;
-      RETURN_OR_CREATE(result, returnSpecResultOrError<What>(returnWithError));
+      RENE_RETURN_OR_CREATE(result,
+                            returnSpecResultOrError<What>(returnWithError));
       REQUIRE_THAT(result.action,
                    Equals({What::Constructed, What::MoveConstructed}));
       overstepped = true;
@@ -417,8 +430,43 @@ TEST_CASE("Macro RETURN_OR_CREATE") {
   }
 }
 
+TEST_CASE(RENE_TEST_PREFIX "return<&>") {
+  SECTION("const &") {
+    What w;
+    auto func = [&]() -> result<const What&> { return w; };
+    auto res = func();
+    REQUIRE_FALSE(res.is_error());
+    REQUIRE_THAT(res.get().action, Equals({What::Constructed}));
+    REQUIRE_THAT(res->action, Equals({What::Constructed}));
+  }
+  SECTION("&") {
+    What w;
+    auto func = [&]() -> result<What&> { return w; };
+    auto res = func();
+    REQUIRE_FALSE(res.is_error());
+    REQUIRE_THAT(res.get().action, Equals({What::Constructed}));
+    REQUIRE_THAT(res->action, Equals({What::Constructed}));
+  }
+  SECTION("const &, const&") {
+    What w1, w2;
+    auto func = [&]() -> result<const What&, const What&> { return {w1, w2}; };
+    auto res = func();
+    REQUIRE_FALSE(res.is_error());
+    REQUIRE_THAT(res.get<0>().action, Equals({What::Constructed}));
+    REQUIRE_THAT(res.get<1>().action, Equals({What::Constructed}));
+  }
+  SECTION("const &, const&") {
+    What w1, w2;
+    auto func = [&]() -> result<What&, What&> { return {w1, w2}; };
+    auto res = func();
+    REQUIRE_FALSE(res.is_error());
+    REQUIRE_THAT(res.get<0>().action, Equals({What::Constructed}));
+    REQUIRE_THAT(res.get<1>().action, Equals({What::Constructed}));
+  }
+}
+
 #if 0
-TEST_CASE("HANDLE_IF_ERROR") {
+TEST_CASE(RENE_TEST_PREFIX "HANDLE_IF_ERROR") {
   SECTION("result<>") {
     auto func = [&](bool returnWithError) -> result<> {
       return returnResultOrError(returnWithError);
@@ -452,5 +500,6 @@ TEST_CASE("HANDLE_IF_ERROR") {
 }
 #endif
 
+}  // namespace
 }  // namespace test
 }  // namespace rene

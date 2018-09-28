@@ -5,21 +5,16 @@ project(rene
 	LANGUAGES C CXX
     )
  
-
-add_library(rene
-    "src/error.cpp"
-    "src/result.cpp"
-    )
+add_library(rene INTERFACE)
 
 target_include_directories(rene
-    PUBLIC
+    INTERFACE
         "include"
-        "${CMAKE_CURRENT_BINARY_DIR}"
         "third_party/jasl/jasl.github/include"
     )
 
 target_compile_features(rene
-    PUBLIC
+    INTERFACE
         cxx_std_17
         cxx_constexpr
         cxx_noexcept
@@ -27,30 +22,11 @@ target_compile_features(rene
         cxx_variadic_macros
     )
 
-include(GenerateExportHeader)
-
-generate_export_header(rene
-    EXPORT_FILE_NAME "rene_lib_export.hpp"
-)
-    
-target_compile_definitions(rene PRIVATE "rene_EXPORTS")
-
-
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-    target_compile_options(rene PUBLIC
-        #"-DRENE_OPTIONAL(T)=std::experimental::optional<T>"
-        #"-DRENE_OPTINAL_INCLUDE=<experimental/optional>"
-        #"-DRENE_OPTIONAL_IN_PLACE_T=std::experimental::in_place_t"
-        
-        )
-endif()
-
-
 add_executable(rene.test
     "test/rene.test.main.cpp"
     "test/rene.test.error.cpp"
-    "test/rene.test.result.cpp"
-    "test/rene.test.result_macro.cpp"
+    "test/rene.test.result_with_optional.cpp"
+    "test/rene.test.result_with_variant.cpp"
     )
 
 target_include_directories(rene.test

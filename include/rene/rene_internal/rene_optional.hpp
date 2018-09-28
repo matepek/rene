@@ -1,4 +1,4 @@
-// JASL: For more information see https://github.com/matepek/rene
+// RENE: For more information see https://github.com/matepek/rene
 //
 // Copyright (c) 2018 Mate Pek
 //
@@ -36,7 +36,7 @@ using in_place_t = RENE_OPTIONAL_IN_PLACE_T;
 // /*
 //  * This class was necessary because std::optional is kind of a new feature
 //  and
-//  * it isnt supported wide enough. Also, we save a byte with this solution.
+//  * it isn't supported wide enough. Also, we save a byte with this solution.
 //  (But
 //  * it is not the reason.)
 //  * WARNING! Easy to use this class wrongly.
